@@ -35,8 +35,14 @@
 
     <div class="row">
     
-      <div id="mainFeed" class="large-9 columns">
-        <!-- Main Feed -->
+      <div class="large-9 columns">
+        <div id="mainFeed">
+          <!-- Main Feed -->
+        </div>
+
+        <div>
+          <p align="right"><a href ="#" id="addNewTrip" data-reveal-id="addModal">Add new trip</a></p>
+        </div>
       </div>
 
     <!-- Right Sidebar for logged user -->
@@ -52,7 +58,6 @@
       </div>
 
     <!-- End of Sidebar -->
-
     </div>
 
     <div id="myModal" class="reveal-modal" data-reveal> 
@@ -63,13 +68,73 @@
       <!-- Editing Modal -->
     </div>
 
+    <div id="addModal" class="reveal-modal" data-reveal> 
+      <center><h3> New Trip </h3></center>
+      <form>
+        <div class="large-9 large-centered columns">
+          <div class="row">
+            <div class="large-4 columns">
+            <label>Name:</label>
+            <input id="tripName" type="text" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="large-3 columns">
+            <label>Place:</label>
+            <input id="tripPlace" type="text" />
+            </div>
+
+            <div class="large-3 columns">
+            <label>From:</label>
+            <input id="tripFrom" type="text" />
+            </div>
+
+            <div class="large-3 columns">
+            <label>To:</label>
+            <input id="tripTo" type="text" />
+            </div>
+
+            <div class="large-3 columns">
+            <label>Price:</label>
+            <input id="tripPrice" type="text" />
+            </div>
+          </div>
+
+          <div class="row collapse">
+            <label>Photo:</label>
+            <div class="large-2 columns">
+              <span class="prefix">http://</span>
+            </div>
+            <div class="large-10 columns">
+              <input id="tripPhoto" type="text" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="large-12 columns">
+            <label>Description:</label>
+            <textarea id="tripDesc" rows="10">
+            </textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <p align="right">
+              <button id="saveTripButton">
+                Save
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+      <a class="close-reveal-modal">&#215;</a>
+    </div>
+
 
 
   <!-- Showing trip description -->  
     <script type="x-handlebars-template" id="show-trip-details-template">
-      <div>
-        <a href="#" id="edit-trip{{id}}" data-reveal-id="editModal">Edit trip</a>
-      </div>
       <div class="show-details">
         <p>{{description}}</p>
       </div>
@@ -94,8 +159,11 @@
     <script type="x-handlebars-template" id="trip-row-template">
       <div class="row">
         <div class="large-2 columns"><img src={{photo}} /></div>
+        <div>
+          <a href="#" id="edit-trip{{id}}" data-reveal-id="editModal">Edit trip</a>
+        </div>
         <div class="large-10 columns">
-          <p><a href ="#" id="show-trip-details{{id}}" data-reveal-id="myModal"><strong> {{name}}:</strong></a> {{destination}}</p>
+          <p><a href ="#" id="show-trip-details{{id}}" data-reveal-id="myModal"><strong> {{name}}:</strong></a> {{place}}</p>
         </div>
       </div>
       <hr />
