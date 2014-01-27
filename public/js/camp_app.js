@@ -20,14 +20,28 @@
 
   Server = (function() {
     function Server() {
-      this.save_trip = __bind(this.save_trip, this);
+      this.tripsTaken = __bind(this.tripsTaken, this);
     }
+
+    Server.prototype.take_trips = function() {
+      var _this = this;
+      return $.ajax({
+        url: "http://campbasebackend.shellyapp.com/trips.json",
+        type: "GET",
+        success: function(trips) {
+          console.log("success");
+          return _this.tripsTaken(trips);
+        },
+        error: function() {
+          return console.log("fail");
+        }
+      });
+    };
 
     Server.prototype.save_trip = function(info) {
       var _this = this;
-      alert("dupa");
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips.json",
+        url: "http://campbasebackend.shellyapp.com/trips.json",
         type: "POST",
         data: {
           name: info[0],
@@ -39,14 +53,16 @@
           description: info[6]
         },
         success: function(data, status, response) {
-          return alert("Dziala! :))))");
+          return console.log("success");
         },
         error: function() {
-          return alert("Nie dziala! :((((((((((((((((((((((((((((((((");
+          return console.log("fail");
         },
         dataType: "json"
       });
     };
+
+    Server.prototype.tripsTaken = function(trips) {};
 
     return Server;
 
@@ -58,33 +74,17 @@
       this.sendTripOnBackend = __bind(this.sendTripOnBackend, this);
       this.addTripButton = __bind(this.addTripButton, this);
       this.showTrips = __bind(this.showTrips, this);
-      this.Trips = [
-        {
-          name: "Skiing",
-          place: "Jamaica",
-          photo: "http://www.clker.com/cliparts/5/9/1/e/131294477634010115mountain%20cartoon-th.png",
-          description: "SKI!qqqqqqqqqqqqwwwwwertyuiopasdfghjklmnbvcxza"
-        }, {
-          name: "Sailing",
-          place: "Atlantic Ocean",
-          photo: "http://s3.flog.pl/media/foto_mini/613309_ocean-noca.jpg",
-          description: "SAIL!mnbvcxzaqwertyuioplkjhgfdsdsdfghjuhjhbffgm,k"
-        }, {
-          name: "Save the planet!",
-          place: "Moon",
-          photo: "http://img.wikinut.com/img/38.c5n8slo6k3ku0/jpeg/preview/Witch-flying-past-the-moon.jpeg",
-          description: "FLY!ertyjkijnhbgvfcdvgnmjnhrbgvfnjewvfjivfjjgbbgbgnjg"
-        }
-      ];
     }
 
     UseCase.prototype.start = function() {
       console.log("hello");
-      this.showTrips(this.Trips);
+      this.Trips = this.server.take_trips();
       return this.addTripButton();
     };
 
-    UseCase.prototype.showTrips = function(Trips) {};
+    UseCase.prototype.showTrips = function(Trips) {
+      return console.log(Trips);
+    };
 
     UseCase.prototype.addTripButton = function() {};
 
@@ -117,44 +117,44 @@
     };
 
     Gui.prototype.tripsOnFeed = function(Trips) {
-      var i, trip, _i, _len, _results;
-      i = 0;
+      var trip, _i, _len, _results;
       _results = [];
       for (_i = 0, _len = Trips.length; _i < _len; _i++) {
         trip = Trips[_i];
-        this.showTrip(trip, i);
-        _results.push(i = i + 1);
+        _results.push(this.showTrip(trip));
       }
       return _results;
     };
 
-    Gui.prototype.showTrip = function(trip, i) {
+    Gui.prototype.showTrip = function(trip) {
       var detailRequest, editRequest, element,
         _this = this;
       element = this._createElementFor("#trip-row-template", {
         photo: trip.photo,
         name: trip.name,
         place: trip.place,
-        id: i
+        id: trip.id
       });
       $("#mainFeed").append(element);
-      editRequest = $("#edit-trip" + i);
+      editRequest = $("#edit-trip" + trip.id);
       editRequest.click(function() {
         return _this.editTripForm();
       });
-      detailRequest = $("#show-trip-details" + i);
+      detailRequest = $("#show-trip-details" + trip.id);
       return detailRequest.click(function() {
-        return _this.tripDetailsClicked(trip.description, i);
+        return _this.tripDetailsClicked(trip.description, trip.id);
       });
     };
 
     Gui.prototype.tripDetailsClicked = function(description, i) {
       var element, signUp,
         _this = this;
+      console.log("clicked");
       element = this._createElementFor("#show-trip-details-template", {
         description: description,
         id: i
       });
+      console.log(element);
       $("#myModal").html(element);
       signUp = $("#going-on-trip");
       return signUp.click(function() {
@@ -173,10 +173,10 @@
     };
 
     Gui.prototype.addingTrips = function() {
-      var stupidButton,
+      var saveButton,
         _this = this;
-      stupidButton = $("#saveTripButton");
-      return stupidButton.click(function() {
+      saveButton = $("#saveTripButton");
+      return saveButton.click(function() {
         return _this.saveNewTrip([$("#tripName").val(), $("#tripPlace").val(), $("#tripFrom").val(), $("#tripTo").val(), $("#tripPrice").val(), $("#tripPhoto").val(), $("#tripDesc").val()]);
       });
     };
@@ -202,8 +202,8 @@
       After(this.gui, "saveNewTrip", function(info) {
         return _this.useCase.sendTripOnBackend(info);
       });
-      After(this.useCase, "sendTripOnBackend", function(info) {
-        return _this.server.save_trip(info);
+      After(this.server, "tripsTaken", function(trips) {
+        return _this.useCase.showTrips(trips);
       });
     }
 
