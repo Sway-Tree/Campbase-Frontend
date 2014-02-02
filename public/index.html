@@ -87,12 +87,12 @@
 
             <div class="large-3 columns">
             <label>From:</label>
-            <input id="tripFrom" type="text" />
+            <input id="tripFrom" type="text" placeholder="yyyy-mm-dd" />
             </div>
 
             <div class="large-3 columns">
             <label>To:</label>
-            <input id="tripTo" type="text" />
+            <input id="tripTo" type="text" placeholder="yyyy-mm-dd" />
             </div>
 
             <div class="large-3 columns">
@@ -114,8 +114,7 @@
           <div class="row">
             <div class="large-12 columns">
             <label>Description:</label>
-            <textarea id="tripDesc" rows="10">
-            </textarea>
+            <textarea id="tripDesc" rows="10"></textarea>
             </div>
           </div>
 
@@ -149,8 +148,65 @@
 
   <!--Form for editing trip -->
     <script type="x-handlebars-template" id="edit-trip-template">
-    <p> Something! </p>
-        <a class="close-reveal-modal">&#215;</a> 
+      <center><h3> Edit Trip </h3></center>
+      <form>
+        <div class="large-9 large-centered columns">
+          <div class="row">
+            <div class="large-4 columns">
+            <label>Name:</label>
+            <input id="tripName" type="text" value="{{name}}" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="large-3 columns">
+            <label>Place:</label>
+            <input id="tripPlace" type="text" value="{{place}}" />
+            </div>
+
+            <div class="large-3 columns">
+            <label>From:</label>
+            <input id="tripFrom" type="text" value="{{from}}" />
+            </div>
+
+            <div class="large-3 columns">
+            <label>To:</label>
+            <input id="tripTo" type="text" value="{{to}}" />
+            </div>
+
+            <div class="large-3 columns">
+            <label>Price:</label>
+            <input id="tripPrice" type="text" value="{{price}}"/>
+            </div>
+          </div>
+
+          <div class="row collapse">
+            <label>Photo:</label>
+            <div class="large-2 columns">
+              <span class="prefix">http://</span>
+            </div>
+            <div class="large-10 columns">
+              <input id="tripPhoto" type="text" value="{{photo}}"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="large-12 columns">
+            <label>Description:</label>
+            <textarea id="tripDesc" rows="10">{{description}}</textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <p align="right">
+              <button id="editTripButton">
+                Save
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+      <a class="close-reveal-modal">&#215;</a> 
     </script>
 
 
@@ -160,7 +216,8 @@
       <div class="row">
         <div class="large-2 columns"><img src={{photo}} /></div>
         <div>
-          <a href="#" id="edit-trip{{id}}" data-reveal-id="editModal">Edit trip</a>
+          <a href="#" id="edit-trip{{id}}" data-reveal-id="editModal">Edit trip</a> |
+          <a href="#" id="delete-trip{{id}}">Delete</a>
         </div>
         <div class="large-10 columns">
           <p><a href ="#" id="show-trip-details{{id}}" data-reveal-id="myModal"><strong> {{name}}:</strong></a> {{place}}</p>

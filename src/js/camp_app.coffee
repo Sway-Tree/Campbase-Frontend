@@ -14,14 +14,14 @@ class Server
 
   take_trips: ->
     $.ajax(
-          url: "http://campbasebackend.shellyapp.com/trips.json"
-          type: "GET"
-          success: (trips) =>
-            console.log("success")
-            @tripsTaken(trips)
-          error: =>
-            console.log("fail")
-          )
+        url: "http://campbasebackend.shellyapp.com/trips.json"
+        type: "GET"
+        success: (trips) =>
+          console.log("success")
+          @tripsTaken(trips)
+        error: =>
+          console.log("fail")
+        )
 
   save_trip: (info) ->
     $.ajax(
@@ -37,6 +37,39 @@ class Server
          description: info[6]
        success: (data, status, response) =>
          console.log("success")
+         @reloadMainFeed()
+       error: =>
+         console.log("fail")
+       dataType: "json"
+       )
+
+  update_trip: (id, info) ->
+    $.ajax(
+       url: "http://campbasebackend.shellyapp.com/trips/"+id+".json"
+       type: "PUT"
+       data:
+         name: info[0]
+         place: info[1]
+         from: info[2]
+         to: info[3]
+         price: info[4]
+         photo: info[5]
+         description: info[6]
+       success: (data, status, response) =>
+         console.log("success")
+         @reloadMainFeed()
+       error: =>
+         console.log("fail")
+       dataType: "json"
+       )
+
+  delete_trip: (id) ->
+    $.ajax(
+       url: "http://campbasebackend.shellyapp.com/trips/"+id+".json"
+       type: "DELETE"
+       success: (data, status, response) =>
+         console.log("success")
+         @reloadMainFeed()
        error: =>
          console.log("fail")
        dataType: "json"
@@ -44,30 +77,33 @@ class Server
 
   tripsTaken: (trips) =>
 
+  reloadMainFeed: =>
+
 
 class UseCase
   constructor: (@server) ->
-    #@Trips = @server.take_trips()
-    #@Trips = [{id : 0, name : "Skiing", place : "Jamaica", photo : "http://www.clker.com/cliparts/5/9/1/e/131294477634010115mountain%20cartoon-th.png",
-    #description : "SKI!qqqqqqqqqqqqwwwwwertyuiopasdfghjklmnbvcxza"}, 
-    #{id : 1, name : "Sailing", place : "Atlantic Ocean", photo : "http://s3.flog.pl/media/foto_mini/613309_ocean-noca.jpg",
-    #description : "SAIL!mnbvcxzaqwertyuioplkjhgfdsdsdfghjuhjhbffgm,k"},
-    #{id : 2, name : "Save the planet!", place : "Moon", photo : "http://img.wikinut.com/img/38.c5n8slo6k3ku0/jpeg/preview/Witch-flying-past-the-moon.jpeg",
-    #description : "FLY!ertyjkijnhbgvfcdvgnmjnhrbgvfnjewvfjivfjjgbbgbgnjg"}]
 
   start: () ->
     console.log("hello")
     @Trips = @server.take_trips()
-    #@showTrips(@Trips)
     @addTripButton()
 
+  loadTrips: =>
+    @Trips = @server.take_trips()
+
   showTrips: (Trips) =>
-    console.log(Trips)
 
   addTripButton: =>
 
   sendTripOnBackend: (info) =>
     @server.save_trip(info)
+
+  updateTripOnBackend: (id, info) =>
+    @server.update_trip(id, info)
+
+  deleteTripOnBackend: (id) =>
+    @server.delete_trip(id)
+
 
   
 class Gui
@@ -87,30 +123,46 @@ class Gui
     element = @_createElementFor("#trip-row-template", {photo : trip.photo, name : trip.name, place : trip.place, id : trip.id})
     $("#mainFeed").append(element)
     editRequest = $("#edit-trip"+trip.id)
-    editRequest.click( => @editTripForm())
+    editRequest.click( => @editTripForm(trip))
+    deleteRequest = $("#delete-trip"+trip.id)
+    deleteRequest.click( => @deleteTrip(trip.id))
     detailRequest = $("#show-trip-details"+trip.id)
     detailRequest.click( => @tripDetailsClicked(trip.description, trip.id))
 
   tripDetailsClicked: (description, i) =>
-    console.log("clicked")
     element = @_createElementFor("#show-trip-details-template", {description : description, id : i})
-    console.log(element)
     $("#myModal").html(element)
+    $('#myModal').foundation('reveal', 'open')
     signUp = $("#going-on-trip")
     signUp.click( => @enrollForTrip())
+    $('#myModal').foundation('reveal', 'close')
 
   enrollForTrip: => 
     alert("You've just enrolled for a trip!")
 
-  editTripForm: =>
-    element = @_createElementFor("#edit-trip-template")
+  editTripForm: (trip)=>
+    element = @_createElementFor("#edit-trip-template", {name : trip.name, place : trip.place, from : trip.from, to : trip.to, price : trip.price, photo : trip.photo, description : trip.description})
     $("#editModal").html(element)
+    $('#editModal').foundation('reveal', 'open')
+    editButton = $("#editTripButton")
+    editButton.click(=> @updateTrip(trip.id, [$("#tripName").val(), $("#tripPlace").val(), $("#tripFrom").val(), $("#tripTo").val(), $("#tripPrice").val(), $("#tripPhoto").val(), $("#tripDesc").val()] ))
+    $('#editModal').foundation('reveal', 'close')
 
   addingTrips: =>
     saveButton = $("#saveTripButton")
     saveButton.click(=> @saveNewTrip([$("#tripName").val(), $("#tripPlace").val(), $("#tripFrom").val(), $("#tripTo").val(), $("#tripPrice").val(), $("#tripPhoto").val(), $("#tripDesc").val()] ))
 
+  refreshTrips: =>
+    $("#mainFeed").empty()
+    @feedEmptied()
+
   saveNewTrip: (info) =>
+
+  updateTrip: (id, info) =>
+
+  deleteTrip: (id) =>
+
+  feedEmptied: =>
     
 
 class Glue
@@ -118,7 +170,11 @@ class Glue
     After(@useCase, "showTrips", (trips) => @gui.tripsOnFeed(trips))
     After(@useCase, "addTripButton", => @gui.addingTrips())
     After(@gui, "saveNewTrip", (info) => @useCase.sendTripOnBackend(info))
+    After(@gui, "updateTrip", (id, info) => @useCase.updateTripOnBackend(id, info))
+    After(@gui, "deleteTrip", (id) => @useCase.deleteTripOnBackend(id))
+    After(@gui, "feedEmptied", => @useCase.loadTrips())
     After(@server, "tripsTaken", (trips) => @useCase.showTrips(trips))
+    After(@server, "reloadMainFeed", => @gui.refreshTrips())
 
 class App
   constructor: ->

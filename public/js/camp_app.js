@@ -20,6 +20,7 @@
 
   Server = (function() {
     function Server() {
+      this.reloadMainFeed = __bind(this.reloadMainFeed, this);
       this.tripsTaken = __bind(this.tripsTaken, this);
     }
 
@@ -53,7 +54,49 @@
           description: info[6]
         },
         success: function(data, status, response) {
-          return console.log("success");
+          console.log("success");
+          return _this.reloadMainFeed();
+        },
+        error: function() {
+          return console.log("fail");
+        },
+        dataType: "json"
+      });
+    };
+
+    Server.prototype.update_trip = function(id, info) {
+      var _this = this;
+      return $.ajax({
+        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
+        type: "PUT",
+        data: {
+          name: info[0],
+          place: info[1],
+          from: info[2],
+          to: info[3],
+          price: info[4],
+          photo: info[5],
+          description: info[6]
+        },
+        success: function(data, status, response) {
+          console.log("success");
+          return _this.reloadMainFeed();
+        },
+        error: function() {
+          return console.log("fail");
+        },
+        dataType: "json"
+      });
+    };
+
+    Server.prototype.delete_trip = function(id) {
+      var _this = this;
+      return $.ajax({
+        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
+        type: "DELETE",
+        success: function(data, status, response) {
+          console.log("success");
+          return _this.reloadMainFeed();
         },
         error: function() {
           return console.log("fail");
@@ -64,6 +107,8 @@
 
     Server.prototype.tripsTaken = function(trips) {};
 
+    Server.prototype.reloadMainFeed = function() {};
+
     return Server;
 
   })();
@@ -71,9 +116,12 @@
   UseCase = (function() {
     function UseCase(server) {
       this.server = server;
+      this.deleteTripOnBackend = __bind(this.deleteTripOnBackend, this);
+      this.updateTripOnBackend = __bind(this.updateTripOnBackend, this);
       this.sendTripOnBackend = __bind(this.sendTripOnBackend, this);
       this.addTripButton = __bind(this.addTripButton, this);
       this.showTrips = __bind(this.showTrips, this);
+      this.loadTrips = __bind(this.loadTrips, this);
     }
 
     UseCase.prototype.start = function() {
@@ -82,14 +130,24 @@
       return this.addTripButton();
     };
 
-    UseCase.prototype.showTrips = function(Trips) {
-      return console.log(Trips);
+    UseCase.prototype.loadTrips = function() {
+      return this.Trips = this.server.take_trips();
     };
+
+    UseCase.prototype.showTrips = function(Trips) {};
 
     UseCase.prototype.addTripButton = function() {};
 
     UseCase.prototype.sendTripOnBackend = function(info) {
       return this.server.save_trip(info);
+    };
+
+    UseCase.prototype.updateTripOnBackend = function(id, info) {
+      return this.server.update_trip(id, info);
+    };
+
+    UseCase.prototype.deleteTripOnBackend = function(id) {
+      return this.server.delete_trip(id);
     };
 
     return UseCase;
@@ -98,7 +156,11 @@
 
   Gui = (function() {
     function Gui() {
+      this.feedEmptied = __bind(this.feedEmptied, this);
+      this.deleteTrip = __bind(this.deleteTrip, this);
+      this.updateTrip = __bind(this.updateTrip, this);
       this.saveNewTrip = __bind(this.saveNewTrip, this);
+      this.refreshTrips = __bind(this.refreshTrips, this);
       this.addingTrips = __bind(this.addingTrips, this);
       this.editTripForm = __bind(this.editTripForm, this);
       this.enrollForTrip = __bind(this.enrollForTrip, this);
@@ -127,7 +189,7 @@
     };
 
     Gui.prototype.showTrip = function(trip) {
-      var detailRequest, editRequest, element,
+      var deleteRequest, detailRequest, editRequest, element,
         _this = this;
       element = this._createElementFor("#trip-row-template", {
         photo: trip.photo,
@@ -138,7 +200,11 @@
       $("#mainFeed").append(element);
       editRequest = $("#edit-trip" + trip.id);
       editRequest.click(function() {
-        return _this.editTripForm();
+        return _this.editTripForm(trip);
+      });
+      deleteRequest = $("#delete-trip" + trip.id);
+      deleteRequest.click(function() {
+        return _this.deleteTrip(trip.id);
       });
       detailRequest = $("#show-trip-details" + trip.id);
       return detailRequest.click(function() {
@@ -149,27 +215,42 @@
     Gui.prototype.tripDetailsClicked = function(description, i) {
       var element, signUp,
         _this = this;
-      console.log("clicked");
       element = this._createElementFor("#show-trip-details-template", {
         description: description,
         id: i
       });
-      console.log(element);
       $("#myModal").html(element);
+      $('#myModal').foundation('reveal', 'open');
       signUp = $("#going-on-trip");
-      return signUp.click(function() {
+      signUp.click(function() {
         return _this.enrollForTrip();
       });
+      return $('#myModal').foundation('reveal', 'close');
     };
 
     Gui.prototype.enrollForTrip = function() {
       return alert("You've just enrolled for a trip!");
     };
 
-    Gui.prototype.editTripForm = function() {
-      var element;
-      element = this._createElementFor("#edit-trip-template");
-      return $("#editModal").html(element);
+    Gui.prototype.editTripForm = function(trip) {
+      var editButton, element,
+        _this = this;
+      element = this._createElementFor("#edit-trip-template", {
+        name: trip.name,
+        place: trip.place,
+        from: trip.from,
+        to: trip.to,
+        price: trip.price,
+        photo: trip.photo,
+        description: trip.description
+      });
+      $("#editModal").html(element);
+      $('#editModal').foundation('reveal', 'open');
+      editButton = $("#editTripButton");
+      editButton.click(function() {
+        return _this.updateTrip(trip.id, [$("#tripName").val(), $("#tripPlace").val(), $("#tripFrom").val(), $("#tripTo").val(), $("#tripPrice").val(), $("#tripPhoto").val(), $("#tripDesc").val()]);
+      });
+      return $('#editModal').foundation('reveal', 'close');
     };
 
     Gui.prototype.addingTrips = function() {
@@ -181,7 +262,18 @@
       });
     };
 
+    Gui.prototype.refreshTrips = function() {
+      $("#mainFeed").empty();
+      return this.feedEmptied();
+    };
+
     Gui.prototype.saveNewTrip = function(info) {};
+
+    Gui.prototype.updateTrip = function(id, info) {};
+
+    Gui.prototype.deleteTrip = function(id) {};
+
+    Gui.prototype.feedEmptied = function() {};
 
     return Gui;
 
@@ -202,8 +294,20 @@
       After(this.gui, "saveNewTrip", function(info) {
         return _this.useCase.sendTripOnBackend(info);
       });
+      After(this.gui, "updateTrip", function(id, info) {
+        return _this.useCase.updateTripOnBackend(id, info);
+      });
+      After(this.gui, "deleteTrip", function(id) {
+        return _this.useCase.deleteTripOnBackend(id);
+      });
+      After(this.gui, "feedEmptied", function() {
+        return _this.useCase.loadTrips();
+      });
       After(this.server, "tripsTaken", function(trips) {
         return _this.useCase.showTrips(trips);
+      });
+      After(this.server, "reloadMainFeed", function() {
+        return _this.gui.refreshTrips();
       });
     }
 
