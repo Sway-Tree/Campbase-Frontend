@@ -22,12 +22,28 @@
     function Server() {
       this.reloadMainFeed = __bind(this.reloadMainFeed, this);
       this.tripsTaken = __bind(this.tripsTaken, this);
+      this.userTaken = __bind(this.userTaken, this);
     }
+
+    Server.prototype.take_user = function() {
+      var _this = this;
+      return $.ajax({
+        url: "http://campbasebackend.shellyapp.com//user.json",
+        type: "GET",
+        success: function(user) {
+          console.log("success");
+          return _this.userTaken(user);
+        },
+        error: function() {
+          return console.log("fail");
+        }
+      });
+    };
 
     Server.prototype.take_trips = function() {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips.json",
+        url: "http://campbasebackend.shellyapp.com//trips.json",
         type: "GET",
         success: function(trips) {
           console.log("success");
@@ -42,7 +58,7 @@
     Server.prototype.save_trip = function(info) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips.json",
+        url: "http://campbasebackend.shellyapp.com//trips.json",
         type: "POST",
         data: {
           name: info[0],
@@ -67,7 +83,7 @@
     Server.prototype.update_trip = function(id, info) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
+        url: "http://campbasebackend.shellyapp.com//trips/" + id + ".json",
         type: "PUT",
         data: {
           name: info[0],
@@ -92,7 +108,7 @@
     Server.prototype.delete_trip = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
+        url: "http://campbasebackend.shellyapp.com//trips/" + id + ".json",
         type: "DELETE",
         success: function(data, status, response) {
           console.log("success");
@@ -103,6 +119,10 @@
         },
         dataType: "json"
       });
+    };
+
+    Server.prototype.userTaken = function(user) {
+      return console.log(user);
     };
 
     Server.prototype.tripsTaken = function(trips) {};
@@ -122,12 +142,18 @@
       this.addTripButton = __bind(this.addTripButton, this);
       this.showTrips = __bind(this.showTrips, this);
       this.loadTrips = __bind(this.loadTrips, this);
+      this.loadUser = __bind(this.loadUser, this);
     }
 
     UseCase.prototype.start = function() {
       console.log("hello");
-      this.Trips = this.server.take_trips();
+      this.loadUser();
+      this.loadTrips();
       return this.addTripButton();
+    };
+
+    UseCase.prototype.loadUser = function() {
+      return this.User = this.server.take_user();
     };
 
     UseCase.prototype.loadTrips = function() {

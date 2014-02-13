@@ -12,9 +12,21 @@ _.defaults this,
 class Server
   constructor: ->
 
+  take_user: ->
+    $.ajax(
+        url: "http://campbasebackend.shellyapp.com//user.json"
+        type: "GET"
+        success: (user) =>
+          console.log("success")
+          @userTaken(user)
+        error: =>
+          console.log("fail")
+        )
+
+
   take_trips: ->
     $.ajax(
-        url: "http://campbasebackend.shellyapp.com/trips.json"
+        url: "http://campbasebackend.shellyapp.com//trips.json"
         type: "GET"
         success: (trips) =>
           console.log("success")
@@ -25,7 +37,7 @@ class Server
 
   save_trip: (info) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips.json"
+       url: "http://campbasebackend.shellyapp.com//trips.json"
        type: "POST"
        data:
          name: info[0]
@@ -45,7 +57,7 @@ class Server
 
   update_trip: (id, info) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips/"+id+".json"
+       url: "http://campbasebackend.shellyapp.com//trips/"+id+".json"
        type: "PUT"
        data:
          name: info[0]
@@ -65,7 +77,7 @@ class Server
 
   delete_trip: (id) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips/"+id+".json"
+       url: "http://campbasebackend.shellyapp.com//trips/"+id+".json"
        type: "DELETE"
        success: (data, status, response) =>
          console.log("success")
@@ -74,6 +86,9 @@ class Server
          console.log("fail")
        dataType: "json"
        )
+
+  userTaken: (user) =>
+    console.log(user)
 
   tripsTaken: (trips) =>
 
@@ -85,8 +100,12 @@ class UseCase
 
   start: () ->
     console.log("hello")
-    @Trips = @server.take_trips()
+    @loadUser()
+    @loadTrips()
     @addTripButton()
+
+  loadUser: =>
+    @User = @server.take_user()
 
   loadTrips: =>
     @Trips = @server.take_trips()
