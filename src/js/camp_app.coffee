@@ -14,7 +14,7 @@ class Server
 
   take_user: (trips) ->
     $.ajax(
-        url: "http://campbasebackend.shellyapp.com/user.json"
+        url: "http://0.0.0.0:3000/user.json"
         type: "GET"
         success: (user) =>
           console.log("success")
@@ -30,7 +30,7 @@ class Server
 
   login_user: (data) ->
     $.ajax(
-        url:"http://campbasebackend.shellyapp.com/users/sign_in.json"
+        url:"http://0.0.0.0:3000/users/sign_in.json"
         type: "POST"
         data:
           email: data[0]
@@ -49,7 +49,7 @@ class Server
 
   take_trips: ->
     $.ajax(
-        url: "http://campbasebackend.shellyapp.com/trips.json"
+        url: "http://0.0.0.0:3000/trips.json"
         type: "GET"
         success: (trips) =>
           console.log("success")
@@ -60,7 +60,7 @@ class Server
 
   save_trip: (info) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips.json"
+       url: "http://0.0.0.0:3000/trips.json"
        type: "POST"
        data:
          name: info[0]
@@ -80,7 +80,7 @@ class Server
 
   update_trip: (id, info) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips/"+id+".json"
+       url: "http://0.0.0.0:3000/trips/"+id+".json"
        type: "PUT"
        data:
          name: info[0]
@@ -100,7 +100,7 @@ class Server
 
   delete_trip: (id) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips/"+id+".json"
+       url: "http://0.0.0.0:3000/trips/"+id+".json"
        type: "DELETE"
        success: (data, status, response) =>
          console.log("success")
@@ -112,14 +112,14 @@ class Server
 
   join_the_trip: (id) ->
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips/"+id+"/enroll.json"
+       url: "http://0.0.0.0:3000/trips/"+id+"/enroll.json"
        type: "GET"
        success: (data, status, response) =>
          console.log("success")
-         alert("You've successfully enrolled for this trip!")
+         #alert("You've successfully enrolled for this trip!")
          @reloadMainFeed()
        error: =>
-         alert("Something went wrong. Sorry!") 
+         #alert("Something went wrong. Sorry!") 
          console.log("fail")
        xhrFields: {
             withCredentials: true
@@ -130,7 +130,7 @@ class Server
 
   take_participants: (id) =>
     $.ajax(
-       url: "http://campbasebackend.shellyapp.com/trips/"+id+"/participants.json"
+       url: "http://0.0.0.0:3000/trips/"+id+"/participants.json"
        type: "GET"
        success: (data, status, response) =>
          console.log(data)
@@ -297,13 +297,13 @@ class Gui
     @feedEmptied()
 
   showParticipants: (data) =>
-    console.log(data)
+    
     i = 1
     for user in data
       element = @_createElementFor("#participant-template", {name : user.name, surname : user.surname, email : user.email, i : i})
-      $("#myModal").append(element)
+      $("#anotherModal").append(element)
       i = i+1
-    $('#myModal').foundation('reveal', 'open')
+    $('#anotherModal').foundation('reveal', 'open')
 
   saveNewTrip: (info) =>
 

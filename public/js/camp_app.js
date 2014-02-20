@@ -30,7 +30,7 @@
     Server.prototype.take_user = function(trips) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/user.json",
+        url: "http://0.0.0.0:3000/user.json",
         type: "GET",
         success: function(user) {
           console.log("success");
@@ -50,7 +50,7 @@
     Server.prototype.login_user = function(data) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/users/sign_in.json",
+        url: "http://0.0.0.0:3000/users/sign_in.json",
         type: "POST",
         data: {
           email: data[0],
@@ -74,7 +74,7 @@
     Server.prototype.take_trips = function() {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips.json",
+        url: "http://0.0.0.0:3000/trips.json",
         type: "GET",
         success: function(trips) {
           console.log("success");
@@ -89,7 +89,7 @@
     Server.prototype.save_trip = function(info) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips.json",
+        url: "http://0.0.0.0:3000/trips.json",
         type: "POST",
         data: {
           name: info[0],
@@ -114,7 +114,7 @@
     Server.prototype.update_trip = function(id, info) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
+        url: "http://0.0.0.0:3000/trips/" + id + ".json",
         type: "PUT",
         data: {
           name: info[0],
@@ -139,7 +139,7 @@
     Server.prototype.delete_trip = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
+        url: "http://0.0.0.0:3000/trips/" + id + ".json",
         type: "DELETE",
         success: function(data, status, response) {
           console.log("success");
@@ -155,15 +155,13 @@
     Server.prototype.join_the_trip = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips/" + id + "/enroll.json",
+        url: "http://0.0.0.0:3000/trips/" + id + "/enroll.json",
         type: "GET",
         success: function(data, status, response) {
           console.log("success");
-          alert("You've successfully enrolled for this trip!");
           return _this.reloadMainFeed();
         },
         error: function() {
-          alert("Something went wrong. Sorry!");
           return console.log("fail");
         },
         xhrFields: {
@@ -178,7 +176,7 @@
     Server.prototype.take_participants = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com/trips/" + id + "/participants.json",
+        url: "http://0.0.0.0:3000/trips/" + id + "/participants.json",
         type: "GET",
         success: function(data, status, response) {
           console.log(data);
@@ -495,7 +493,6 @@
 
     Gui.prototype.showParticipants = function(data) {
       var element, i, user, _i, _len;
-      console.log(data);
       i = 1;
       for (_i = 0, _len = data.length; _i < _len; _i++) {
         user = data[_i];
@@ -505,10 +502,10 @@
           email: user.email,
           i: i
         });
-        $("#myModal").append(element);
+        $("#anotherModal").append(element);
         i = i + 1;
       }
-      return $('#myModal').foundation('reveal', 'open');
+      return $('#anotherModal').foundation('reveal', 'open');
     };
 
     Gui.prototype.saveNewTrip = function(info) {};
