@@ -39,26 +39,20 @@
         <div id="mainFeed">
           <!-- Main Feed -->
         </div>
+        <div id="addField">
 
-        <div>
-          <p align="right"><a href ="#" id="addNewTrip" data-reveal-id="addModal">Add new trip</a></p>
         </div>
       </div>
 
     <!-- Right Sidebar for logged user -->
       <div class="large-3 columns">
-        <div class="panel">
-          <h5>You're logged as:</h5>
-          <center>
-            <img src="http://placekitten.com/100/120" />
-            <h6><b>Lord</b></h6>
-            <h6><b>Meowconi</b></h6>
-          </center>
+        <div id="userPanel" class="panel">
         </div>
       </div>
 
     <!-- End of Sidebar -->
     </div>
+
 
     <div id="myModal" class="reveal-modal" data-reveal> 
       <!-- Main Modal -->
@@ -130,6 +124,122 @@
       <a class="close-reveal-modal">&#215;</a>
     </div>
 
+
+  <!-- Showing add Button -->  
+    <script type="x-handlebars-template" id="add-new-trip-template">
+      <p align="right"><a href ="#" id="addNewTrip" data-reveal-id="addModal">Add new trip</a></p>
+    </script>
+
+
+  <!-- Logging in -->
+  <script type="x-handlebars-template" id="log-in-form-template">
+      <center><h6> You are not logged in.</h6></center>
+        <div class="row" class="large-3 columns">
+          <label>e-mail:</label>
+            <input id="user-email" type="text" />
+        </div>
+
+        <div class="row" class="large-3 columns">
+          <label>password:</label>
+            <input id="user-password" type="text" />
+        </div>
+        <p align="right">
+        <button id="log-in-button">
+          Log in
+        </button>
+      </p>
+        <p></p>
+        <p>
+          <a href="#" id="sign-up-button">Create an account</a>
+        </p>
+  </script>
+
+
+  <!--Showing profile -->
+  <script type="x-handlebars-template" id="profile-template">
+      <center>
+        <h6> You are logged as:</h6>
+        <img src={{photo}}>
+        <p>{{name}}<br>
+        {{surname}}</p>
+      </center>
+      <p align="right">
+        <a href="#" id="edit-profile-button">Edit</a>
+      </p>
+  </script>
+
+
+  <!--Create profile -->
+  <script type="x-handlebars-template" id="create-profile-template">
+       <center><h6> New Profile </h6></center>
+      <form>
+        <div class="large-9 large-centered columns">
+          <div class="row" class="large-12 columns">
+            <label>Name:</label>
+            <input id="userName" type="text" />
+          </div>
+
+          <div class="row" class="large-12 columns">
+            <label>Surname:</label>
+            <input id="userSurname" type="text" />
+          </div>
+
+          <div class="row" class="large-12 columns">
+            <label>e-mail:</label>
+            <input id="userEmail" type="text" />
+          </div>
+
+          <div class="row" class="large-12 columns">
+            <label>Photo:</label>
+            <input id="userPhoto" type="text" />
+          </div>
+
+          <div class="row">
+            <p align="right">
+              <button id="saveProfileButton">
+                Save
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+  </script>
+
+  <!--Edit profile -->
+  <script type="x-handlebars-template" id="edit-profile-template">
+       <center><h6> Edit Profile </h6></center>
+      <form>
+        <div class="large-9 large-centered columns">
+          <div class="row" class="large-12 columns">
+            <label>Name:</label>
+            <input id="userName" type="text" value="{{name}}" />
+          </div>
+
+          <div class="row" class="large-12 columns">
+            <label>Surname:</label>
+            <input id="userSurname" type="text" value="{{surname}}" />
+          </div>
+
+          <div class="row" class="large-12 columns">
+            <label>e-mail:</label>
+            <input id="userEmail" type="text" value="{{email}}" />
+          </div>
+
+          <div class="row" class="large-12 columns">
+            <label>Photo:</label>
+            <input id="userPhoto" type="text" value="{{photo}}" />
+          </div>
+
+          <div class="row">
+            <p align="right">
+              <button id="saveProfileButton">
+                Save
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+  </script>
 
 
   <!-- Showing trip description -->  
@@ -210,14 +320,27 @@
     </script>
 
 
+  <!-- Show Edit|Delete -->
+    <script type="x-handlebars-template" id="edit-delete-template">
+      <a href="#" id="edit-trip{{id}}" data-reveal-id="editModal">Edit trip</a> |
+      <a href="#" id="delete-trip{{id}}">Delete</a> |
+      <a href="#" id="participants-trip{{id}}">Show participants</a>
+    </script> 
+
+
+  <!-- Show Edit|Delete -->
+    <script type="x-handlebars-template" id="participant-template">
+     <div>
+      <p>{{i}}. {{name}} {{surname}} ({{email}})</p>
+      </div>
+    </script> 
+
 
   <!-- A trip -->
     <script type="x-handlebars-template" id="trip-row-template">
       <div class="row">
-        <div class="large-2 columns"><img src={{photo}} /></div>
-        <div>
-          <a href="#" id="edit-trip{{id}}" data-reveal-id="editModal">Edit trip</a> |
-          <a href="#" id="delete-trip{{id}}">Delete</a>
+        <div class="large-2 columns"><img src={{photo}}></div>
+        <div id="trip-{{id}}">
         </div>
         <div class="large-10 columns">
           <p><a href ="#" id="show-trip-details{{id}}" data-reveal-id="myModal"><strong> {{name}}:</strong></a> {{place}}</p>

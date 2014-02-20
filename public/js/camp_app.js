@@ -21,29 +21,60 @@
   Server = (function() {
     function Server() {
       this.reloadMainFeed = __bind(this.reloadMainFeed, this);
+      this.participantsTaken = __bind(this.participantsTaken, this);
       this.tripsTaken = __bind(this.tripsTaken, this);
       this.userTaken = __bind(this.userTaken, this);
+      this.take_participants = __bind(this.take_participants, this);
     }
 
-    Server.prototype.take_user = function() {
+    Server.prototype.take_user = function(trips) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com//user.json",
+        url: "http://0.0.0.0:3000/user.json",
         type: "GET",
         success: function(user) {
           console.log("success");
-          return _this.userTaken(user);
+          return _this.userTaken(user, trips);
         },
-        error: function() {
+        error: function(e) {
+          console.log(e);
           return console.log("fail");
-        }
+        },
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true
+      });
+    };
+
+    Server.prototype.login_user = function(data) {
+      var _this = this;
+      return $.ajax({
+        url: "http://0.0.0.0:3000/users/sign_in.json",
+        type: "POST",
+        data: {
+          email: data[0],
+          password: data[1]
+        },
+        success: function(user) {
+          console.log("success");
+          return _this.reloadMainFeed();
+        },
+        error: function(e) {
+          console.log(e);
+          return console.log("fail");
+        },
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true
       });
     };
 
     Server.prototype.take_trips = function() {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com//trips.json",
+        url: "http://0.0.0.0:3000/trips.json",
         type: "GET",
         success: function(trips) {
           console.log("success");
@@ -58,7 +89,7 @@
     Server.prototype.save_trip = function(info) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com//trips.json",
+        url: "http://0.0.0.0:3000/trips.json",
         type: "POST",
         data: {
           name: info[0],
@@ -83,7 +114,7 @@
     Server.prototype.update_trip = function(id, info) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com//trips/" + id + ".json",
+        url: "http://0.0.0.0:3000/trips/" + id + ".json",
         type: "PUT",
         data: {
           name: info[0],
@@ -108,7 +139,7 @@
     Server.prototype.delete_trip = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://campbasebackend.shellyapp.com//trips/" + id + ".json",
+        url: "http://0.0.0.0:3000/trips/" + id + ".json",
         type: "DELETE",
         success: function(data, status, response) {
           console.log("success");
@@ -121,11 +152,55 @@
       });
     };
 
-    Server.prototype.userTaken = function(user) {
-      return console.log(user);
+    Server.prototype.join_the_trip = function(id) {
+      var _this = this;
+      return $.ajax({
+        url: "http://0.0.0.0:3000/trips/" + id + "/enroll.json",
+        type: "GET",
+        success: function(data, status, response) {
+          console.log("success");
+          alert("You've successfully enrolled for this trip!");
+          return _this.reloadMainFeed();
+        },
+        error: function() {
+          alert("Something went wrong. Sorry!");
+          return console.log("fail");
+        },
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true
+      }, {
+        dataType: "json"
+      });
     };
 
+    Server.prototype.take_participants = function(id) {
+      var _this = this;
+      return $.ajax({
+        url: "http://0.0.0.0:3000/trips/" + id + "/participants.json",
+        type: "GET",
+        success: function(data, status, response) {
+          console.log(data);
+          return _this.participantsTaken(data);
+        },
+        error: function() {
+          return console.log("fail");
+        },
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true
+      }, {
+        dataType: "json"
+      });
+    };
+
+    Server.prototype.userTaken = function(user, trips) {};
+
     Server.prototype.tripsTaken = function(trips) {};
+
+    Server.prototype.participantsTaken = function() {};
 
     Server.prototype.reloadMainFeed = function() {};
 
@@ -136,6 +211,8 @@
   UseCase = (function() {
     function UseCase(server) {
       this.server = server;
+      this.getParticipants = __bind(this.getParticipants, this);
+      this.joinTheTrip = __bind(this.joinTheTrip, this);
       this.deleteTripOnBackend = __bind(this.deleteTripOnBackend, this);
       this.updateTripOnBackend = __bind(this.updateTripOnBackend, this);
       this.sendTripOnBackend = __bind(this.sendTripOnBackend, this);
@@ -143,21 +220,52 @@
       this.showTrips = __bind(this.showTrips, this);
       this.loadTrips = __bind(this.loadTrips, this);
       this.loadUser = __bind(this.loadUser, this);
+      this.loadInitial = __bind(this.loadInitial, this);
+      this.logInUser = __bind(this.logInUser, this);
+      this.showLogIn = __bind(this.showLogIn, this);
+      this.showProfile = __bind(this.showProfile, this);
+      this.editAndDelete = __bind(this.editAndDelete, this);
+      this.showUsersInfo = __bind(this.showUsersInfo, this);
     }
 
     UseCase.prototype.start = function() {
       console.log("hello");
-      this.loadUser();
-      this.loadTrips();
-      return this.addTripButton();
+      return this.loadInitial();
     };
 
-    UseCase.prototype.loadUser = function() {
-      return this.User = this.server.take_user();
+    UseCase.prototype.showUsersInfo = function(User, Trips) {
+      console.log(User);
+      if (User != null) {
+        this.showProfile(User);
+        if (User.admin === true) {
+          this.editAndDelete(Trips);
+          return this.addTripButton();
+        }
+      } else {
+        return this.showLogIn();
+      }
+    };
+
+    UseCase.prototype.editAndDelete = function(Trips) {};
+
+    UseCase.prototype.showProfile = function(user) {};
+
+    UseCase.prototype.showLogIn = function() {};
+
+    UseCase.prototype.logInUser = function(data) {
+      return this.server.login_user(data);
+    };
+
+    UseCase.prototype.loadInitial = function() {
+      return this.loadTrips();
+    };
+
+    UseCase.prototype.loadUser = function(trips) {
+      return this.server.take_user(trips);
     };
 
     UseCase.prototype.loadTrips = function() {
-      return this.Trips = this.server.take_trips();
+      return this.server.take_trips();
     };
 
     UseCase.prototype.showTrips = function(Trips) {};
@@ -176,23 +284,41 @@
       return this.server.delete_trip(id);
     };
 
+    UseCase.prototype.joinTheTrip = function(id) {
+      return this.server.join_the_trip(id);
+    };
+
+    UseCase.prototype.getParticipants = function(id) {
+      return this.server.take_participants(id);
+    };
+
     return UseCase;
 
   })();
 
   Gui = (function() {
     function Gui() {
+      this.tripsLoaded = __bind(this.tripsLoaded, this);
       this.feedEmptied = __bind(this.feedEmptied, this);
+      this.participantsTrip = __bind(this.participantsTrip, this);
       this.deleteTrip = __bind(this.deleteTrip, this);
       this.updateTrip = __bind(this.updateTrip, this);
       this.saveNewTrip = __bind(this.saveNewTrip, this);
+      this.showParticipants = __bind(this.showParticipants, this);
       this.refreshTrips = __bind(this.refreshTrips, this);
       this.addingTrips = __bind(this.addingTrips, this);
       this.editTripForm = __bind(this.editTripForm, this);
       this.enrollForTrip = __bind(this.enrollForTrip, this);
       this.tripDetailsClicked = __bind(this.tripDetailsClicked, this);
+      this.showOptions = __bind(this.showOptions, this);
+      this.showEditAndDelete = __bind(this.showEditAndDelete, this);
       this.showTrip = __bind(this.showTrip, this);
       this.tripsOnFeed = __bind(this.tripsOnFeed, this);
+      this.editProfileClicked = __bind(this.editProfileClicked, this);
+      this.signUpClicked = __bind(this.signUpClicked, this);
+      this.logInClicked = __bind(this.logInClicked, this);
+      this.logInForm = __bind(this.logInForm, this);
+      this.fillThePanel = __bind(this.fillThePanel, this);
       this._createElementFor = __bind(this._createElementFor, this);
     }
 
@@ -204,18 +330,65 @@
       return element = $(html);
     };
 
+    Gui.prototype.fillThePanel = function(user) {
+      var element,
+        _this = this;
+      element = this._createElementFor("#profile-template", {
+        photo: user.photo,
+        name: user.name,
+        surname: user.surname
+      });
+      $("#userPanel").html(element);
+      return $("#edit-profile-button").click(function() {
+        return _this.editProfileClicked(user);
+      });
+    };
+
+    Gui.prototype.logInForm = function() {
+      var element,
+        _this = this;
+      element = this._createElementFor("#log-in-form-template");
+      $("#userPanel").html(element);
+      $("#log-in-button").click(function() {
+        return _this.logInClicked([$("#user-email").val, $("#user-password").val]);
+      });
+      return $("#sign-up-button").click(function() {
+        return _this.signUpClicked();
+      });
+    };
+
+    Gui.prototype.logInClicked = function(data) {};
+
+    Gui.prototype.signUpClicked = function() {
+      var element;
+      $("#userPanel").empty();
+      element = this._createElementFor("#create-profile-template");
+      return $("#userPanel").html(element);
+    };
+
+    Gui.prototype.editProfileClicked = function(user) {
+      var element;
+      $("#userPanel").empty();
+      element = this._createElementFor("#edit-profile-template", {
+        photo: user.photo,
+        name: user.name,
+        surname: user.surname,
+        email: user.email
+      });
+      return $("#userPanel").html(element);
+    };
+
     Gui.prototype.tripsOnFeed = function(Trips) {
-      var trip, _i, _len, _results;
-      _results = [];
+      var trip, _i, _len;
       for (_i = 0, _len = Trips.length; _i < _len; _i++) {
         trip = Trips[_i];
-        _results.push(this.showTrip(trip));
+        this.showTrip(trip);
       }
-      return _results;
+      return this.tripsLoaded(Trips);
     };
 
     Gui.prototype.showTrip = function(trip) {
-      var deleteRequest, detailRequest, editRequest, element,
+      var detailRequest, element,
         _this = this;
       element = this._createElementFor("#trip-row-template", {
         photo: trip.photo,
@@ -224,6 +397,29 @@
         id: trip.id
       });
       $("#mainFeed").append(element);
+      detailRequest = $("#show-trip-details" + trip.id);
+      return detailRequest.click(function() {
+        return _this.tripDetailsClicked(trip.description, trip.id);
+      });
+    };
+
+    Gui.prototype.showEditAndDelete = function(Trips) {
+      var trip, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = Trips.length; _i < _len; _i++) {
+        trip = Trips[_i];
+        _results.push(this.showOptions(trip));
+      }
+      return _results;
+    };
+
+    Gui.prototype.showOptions = function(trip) {
+      var deleteRequest, editRequest, element, participantsRequest,
+        _this = this;
+      element = this._createElementFor("#edit-delete-template", {
+        id: trip.id
+      });
+      $("#trip-" + trip.id).append(element);
       editRequest = $("#edit-trip" + trip.id);
       editRequest.click(function() {
         return _this.editTripForm(trip);
@@ -232,9 +428,9 @@
       deleteRequest.click(function() {
         return _this.deleteTrip(trip.id);
       });
-      detailRequest = $("#show-trip-details" + trip.id);
-      return detailRequest.click(function() {
-        return _this.tripDetailsClicked(trip.description, trip.id);
+      participantsRequest = $("#participants-trip" + trip.id);
+      return participantsRequest.click(function() {
+        return _this.participantsTrip(trip.id);
       });
     };
 
@@ -249,14 +445,12 @@
       $('#myModal').foundation('reveal', 'open');
       signUp = $("#going-on-trip");
       signUp.click(function() {
-        return _this.enrollForTrip();
+        return _this.enrollForTrip(i);
       });
       return $('#myModal').foundation('reveal', 'close');
     };
 
-    Gui.prototype.enrollForTrip = function() {
-      return alert("You've just enrolled for a trip!");
-    };
+    Gui.prototype.enrollForTrip = function(i) {};
 
     Gui.prototype.editTripForm = function(trip) {
       var editButton, element,
@@ -280,8 +474,13 @@
     };
 
     Gui.prototype.addingTrips = function() {
-      var saveButton,
+      var element, saveButton,
         _this = this;
+      element = this._createElementFor("#add-new-trip-template");
+      $("#addField").append(element);
+      $("#addNewTrip").click(function() {
+        return $('#addModal').foundation('reveal', 'open');
+      });
       saveButton = $("#saveTripButton");
       return saveButton.click(function() {
         return _this.saveNewTrip([$("#tripName").val(), $("#tripPlace").val(), $("#tripFrom").val(), $("#tripTo").val(), $("#tripPrice").val(), $("#tripPhoto").val(), $("#tripDesc").val()]);
@@ -290,7 +489,26 @@
 
     Gui.prototype.refreshTrips = function() {
       $("#mainFeed").empty();
+      $("#addField").empty();
       return this.feedEmptied();
+    };
+
+    Gui.prototype.showParticipants = function(data) {
+      var element, i, user, _i, _len;
+      console.log(data);
+      i = 1;
+      for (_i = 0, _len = data.length; _i < _len; _i++) {
+        user = data[_i];
+        element = this._createElementFor("#participant-template", {
+          name: user.name,
+          surname: user.surname,
+          email: user.email,
+          i: i
+        });
+        $("#myModal").append(element);
+        i = i + 1;
+      }
+      return $('#myModal').foundation('reveal', 'open');
     };
 
     Gui.prototype.saveNewTrip = function(info) {};
@@ -299,7 +517,11 @@
 
     Gui.prototype.deleteTrip = function(id) {};
 
+    Gui.prototype.participantsTrip = function(id) {};
+
     Gui.prototype.feedEmptied = function() {};
+
+    Gui.prototype.tripsLoaded = function(Trips) {};
 
     return Gui;
 
@@ -317,6 +539,15 @@
       After(this.useCase, "addTripButton", function() {
         return _this.gui.addingTrips();
       });
+      After(this.useCase, "showProfile", function(user) {
+        return _this.gui.fillThePanel(user);
+      });
+      After(this.useCase, "showLogIn", function() {
+        return _this.gui.logInForm();
+      });
+      After(this.useCase, "editAndDelete", function(trips) {
+        return _this.gui.showEditAndDelete(trips);
+      });
       After(this.gui, "saveNewTrip", function(info) {
         return _this.useCase.sendTripOnBackend(info);
       });
@@ -329,11 +560,29 @@
       After(this.gui, "feedEmptied", function() {
         return _this.useCase.loadTrips();
       });
+      After(this.gui, "tripsLoaded", function(trips) {
+        return _this.useCase.loadUser(trips);
+      });
+      After(this.gui, "logInClicked", function(data) {
+        return _this.useCase.logInUser(data);
+      });
+      After(this.gui, "enrollForTrip", function(id) {
+        return _this.useCase.joinTheTrip(id);
+      });
+      After(this.gui, "participantsTrip", function(id) {
+        return _this.useCase.getParticipants(id);
+      });
       After(this.server, "tripsTaken", function(trips) {
         return _this.useCase.showTrips(trips);
       });
       After(this.server, "reloadMainFeed", function() {
         return _this.gui.refreshTrips();
+      });
+      After(this.server, "userTaken", function(user, trips) {
+        return _this.useCase.showUsersInfo(user, trips);
+      });
+      After(this.server, "participantsTaken", function(data) {
+        return _this.gui.showParticipants(data);
       });
     }
 
