@@ -30,7 +30,7 @@
     Server.prototype.take_user = function(trips) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/user.json",
+        url: "http://campbasebackend.shellyapp.com/user.json",
         type: "GET",
         success: function(user) {
           console.log("success");
@@ -50,7 +50,7 @@
     Server.prototype.login_user = function(data) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/users/sign_in.json",
+        url: "http://campbasebackend.shellyapp.com/users/sign_in.json",
         type: "POST",
         data: {
           email: data[0],
@@ -74,7 +74,7 @@
     Server.prototype.take_trips = function() {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips.json",
+        url: "http://campbasebackend.shellyapp.com/trips.json",
         type: "GET",
         success: function(trips) {
           console.log("success");
@@ -89,7 +89,7 @@
     Server.prototype.save_trip = function(info) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips.json",
+        url: "http://campbasebackend.shellyapp.com/trips.json",
         type: "POST",
         data: {
           name: info[0],
@@ -114,7 +114,7 @@
     Server.prototype.update_trip = function(id, info) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips/" + id + ".json",
+        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
         type: "PUT",
         data: {
           name: info[0],
@@ -139,7 +139,7 @@
     Server.prototype.delete_trip = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips/" + id + ".json",
+        url: "http://campbasebackend.shellyapp.com/trips/" + id + ".json",
         type: "DELETE",
         success: function(data, status, response) {
           console.log("success");
@@ -155,7 +155,7 @@
     Server.prototype.join_the_trip = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips/" + id + "/enroll.json",
+        url: "http://campbasebackend.shellyapp.com/trips/" + id + "/enroll.json",
         type: "GET",
         success: function(data, status, response) {
           console.log("success");
@@ -178,7 +178,7 @@
     Server.prototype.take_participants = function(id) {
       var _this = this;
       return $.ajax({
-        url: "http://0.0.0.0:3000/trips/" + id + "/participants.json",
+        url: "http://campbasebackend.shellyapp.com/trips/" + id + "/participants.json",
         type: "GET",
         success: function(data, status, response) {
           console.log(data);
