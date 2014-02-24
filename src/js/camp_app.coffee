@@ -1,7 +1,7 @@
 _.defaults this,
   Before: (object, methodName, adviseMethod) ->
     YouAreDaBomb(object, methodName).before(adviseMethod)
-  BeforeAnyCallback: (object, methodName, adviseMethod) ->
+  BeforeAnyCallback: (object, methodName, adviseMethod) -> 
     YouAreDaBomb(object, methodName).beforeAnyCallback(adviseMethod)
   After: (object, methodName, adviseMethod) ->
     YouAreDaBomb(object, methodName).after(adviseMethod)
@@ -135,6 +135,7 @@ class Server
        success: (data, status, response) =>
          console.log(data)
          @participantsTaken(data)
+         @reloadMainFeed()
        error: =>
          console.log("fail")
        xhrFields: {
@@ -286,7 +287,7 @@ class Gui
 
   addingTrips: =>
     element = @_createElementFor("#add-new-trip-template")
-    $("#addField").append(element)
+    $("#addField").html(element)
     $("#addNewTrip").click(=> $('#addModal').foundation('reveal', 'open'))
     saveButton = $("#saveTripButton")
     saveButton.click(=> @saveNewTrip([$("#tripName").val(), $("#tripPlace").val(), $("#tripFrom").val(), $("#tripTo").val(), $("#tripPrice").val(), $("#tripPhoto").val(), $("#tripDesc").val()] ))
@@ -297,13 +298,13 @@ class Gui
     @feedEmptied()
 
   showParticipants: (data) =>
-    
     i = 1
     for user in data
       element = @_createElementFor("#participant-template", {name : user.name, surname : user.surname, email : user.email, i : i})
       $("#anotherModal").append(element)
       i = i+1
     $('#anotherModal').foundation('reveal', 'open')
+    $("#closing-participants").click(=> $("#anotherModal").empty())
 
   saveNewTrip: (info) =>
 

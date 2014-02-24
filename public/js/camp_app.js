@@ -180,7 +180,8 @@
         type: "GET",
         success: function(data, status, response) {
           console.log(data);
-          return _this.participantsTaken(data);
+          _this.participantsTaken(data);
+          return _this.reloadMainFeed();
         },
         error: function() {
           return console.log("fail");
@@ -475,7 +476,7 @@
       var element, saveButton,
         _this = this;
       element = this._createElementFor("#add-new-trip-template");
-      $("#addField").append(element);
+      $("#addField").html(element);
       $("#addNewTrip").click(function() {
         return $('#addModal').foundation('reveal', 'open');
       });
@@ -492,7 +493,8 @@
     };
 
     Gui.prototype.showParticipants = function(data) {
-      var element, i, user, _i, _len;
+      var element, i, user, _i, _len,
+        _this = this;
       i = 1;
       for (_i = 0, _len = data.length; _i < _len; _i++) {
         user = data[_i];
@@ -505,7 +507,10 @@
         $("#anotherModal").append(element);
         i = i + 1;
       }
-      return $('#anotherModal').foundation('reveal', 'open');
+      $('#anotherModal').foundation('reveal', 'open');
+      return $("#closing-participants").click(function() {
+        return $("#anotherModal").empty();
+      });
     };
 
     Gui.prototype.saveNewTrip = function(info) {};
