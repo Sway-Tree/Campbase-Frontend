@@ -33,8 +33,9 @@ class Server
         url:"http://campbasebackend.shellyapp.com/users/sign_in.json"
         type: "POST"
         data:
-          email: data[0]
-          password: data[1]
+          user:
+            email: data[0]
+            password: data[1]
         success: (user) =>
           console.log("success")
           @reloadMainFeed()
@@ -227,7 +228,7 @@ class Gui
   logInForm: =>
     element = @_createElementFor("#log-in-form-template")
     $("#userPanel").html(element)
-    $("#log-in-button").click( => @logInClicked([$("#user-email").val, $("#user-password").val]))
+    $("#log-in-button").click( => @logInClicked([$("#user-email").val(), $("#user-password").val()]))
     $("#sign-up-button").click( => @signUpClicked())
 
   logInClicked: (data) =>

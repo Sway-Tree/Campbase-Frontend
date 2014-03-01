@@ -53,8 +53,10 @@
         url: "http://campbasebackend.shellyapp.com/users/sign_in.json",
         type: "POST",
         data: {
-          email: data[0],
-          password: data[1]
+          user: {
+            email: data[0],
+            password: data[1]
+          }
         },
         success: function(user) {
           console.log("success");
@@ -349,7 +351,7 @@
       element = this._createElementFor("#log-in-form-template");
       $("#userPanel").html(element);
       $("#log-in-button").click(function() {
-        return _this.logInClicked([$("#user-email").val, $("#user-password").val]);
+        return _this.logInClicked([$("#user-email").val(), $("#user-password").val()]);
       });
       return $("#sign-up-button").click(function() {
         return _this.signUpClicked();
